@@ -2,3 +2,21 @@ python manage.py runserver
 
 REST API 키 Tooltip dcec71e023f9c1ef32498ea45540e114
 JavaScript 키 Tooltip 2f286ff0204a69b26c881678e92553a9
+
+1. node.js(LTS 설치)
+
+2. npm install -g npm
+
+3. npm install -g @vue/cli
+
+4. vue create {projectname}
+
+5. cd {projectname}
+
+6. npm install axios --save
+
+7. npm install vue-router --save
+
+8. vue add element - y -> ko ->y
+
+9. npm run serve
