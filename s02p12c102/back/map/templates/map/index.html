@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block body %}
+	<!-- <form action="hi" method="post">
+		{% csrf_token %}
+			장소명 : <input type="text" name="name">
+			<input type="submit" value="찾기">
+	</form> -->
+
+	<form action="hello" method="post">
+		{% csrf_token %}
+			장소명 : <input type="text" name="name">
+			<input type="submit" value="찾기">
+	</form>
+
+	<form action="search" method="post">
+		{% csrf_token %}
+			장소명 : <input type="text" name="name">
+			<input type="submit" value="찾기">
+	</form>
+
+	<div id="map" style="width:500px;height:400px;"></div>
+	
+	<script>
+		var container = document.getElementById('map');
+		var options = {
+			center: new kakao.maps.LatLng(33.450701, 126.570667),
+			level: 3
+		};
+
+		var map = new kakao.maps.Map(container, options);
+	</script>
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block body %}
+
+<form action="hi" method="post">
+	{% csrf_token %}
+		장소명 : <input type="text" name="name">
+		<input type="submit" value="찾기">
+	</form>
+	<input type="checkbox" name="checkbox1" value="Y" onclick="cafe_check()" />카페
+	<input type="checkbox" name="checkbox2" value="Y" onclick="li_check()" />도서관
+	<input type="checkbox" name="checkbox3" value="Y" onclick="study_check()" />스터디카페
+<div id="map" style="width:500px;height:400px;"></div>
+<div id="map" style="width:100%;height:350px;"></div>
+
+<div class="category">
+	<ul>
+		<li id="coffeeMenu" onclick="changeMarker('coffee')">
+			<span class="ico_comm ico_coffee"></span>
+			커피숍
+		</li>
+		<li id="storeMenu" onclick="changeMarker('store')">
+			<span class="ico_comm ico_store"></span>
+			도서관
+		</li>
+		<li id="carparkMenu" onclick="changeMarker('carpark')">
+			<span class="ico_comm ico_carpark"></span>
+			스터디카페
+		</li>
+	</ul>
+</div>
+
+
+
+
+
+
+<script>
+var infowindow = new kakao.maps.InfoWindow({zIndex:1});
+
+var mapContainer = document.getElementById('map'), // 지도를 표시할 div 
+	mapOption = {
+		center: new kakao.maps.LatLng(37.566826, 126.9786567), // 지도의 중심좌표
+		level: 3 // 지도의 확대 레벨
+	};  
+ 
+var map = new kakao.maps.Map(mapContainer, mapOption); 
+
+var ps = new kakao.maps.services.Places(); 
+
+var addr = "{{addr}}".replace(/&#39;/g, "\"").replace(/&gt;/g, ">");
+var addrc = "{{addrc}}".replace(/&#39;/g, "\"").replace(/&gt;/g, ">");
+var addrl = "{{addrl}}".replace(/&#39;/g, "\"").replace(/&gt;/g, ">");
+var addrsc = "{{addrsc}}".replace(/&#39;/g, "\"").replace(/&gt;/g, ">");
+
+var objData = JSON.parse(addr)
+var objDatac = JSON.parse(addrc)
+var objDatal = JSON.parse(addrl)
+var objDatasc= JSON.parse(addrsc)
+
+placesSearchCB(objData)
+placesSearchCBR(objDatac)
+placesSearchCBR(objDatal)
+placesSearchCBR(objDatasc)
+
+ /////////////////////////////////////////////////////////////
+
+ //위치를 잡아줌
+function placesSearchCB (data, status, pagination) {
+	var bounds = new kakao.maps.LatLngBounds();
+	
+	for (var i=0; i<data.length; i++) {   
+		bounds.extend(new kakao.maps.LatLng(data[i].y, data[i].x));
+	}       
+	map.setBounds(bounds);
+}
+// 마커를 찍어줌
+function placesSearchCBR (data, status, pagination) {
+	for (var i=0; i<data.length; i++) {
+		displayMarker(data[i]);    
+	}       
+}
+
+// 지도에 마커를 표시하는 함수입니다
+function displayMarker(place) {
+	// 마커를 생성하고 지도에 표시합니다
+	var marker = new kakao.maps.Marker({
+		map: map,
+		position: new kakao.maps.LatLng(place.y, place.x) 
+	});
+	// 마커에 클릭이벤트를 등록합니다
+	kakao.maps.event.addListener(marker, 'click', function() {
+		// 마커를 클릭하면 장소명이 인포윈도우에 표출됩니다
+		infowindow.setContent('<div style="padding:5px;font-size:12px;">' + place.place_name + '</div>');
+		infowindow.open(map, marker);
+	});
+}
+
+</script>
+{% endblock %}

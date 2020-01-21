@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% block body %}
+
+<div id="map" style="width:100%;height:350px;"></div>
+<p>
+	
+		<input type="checkbox" name="checkbox1" value="Y" onclick="cafe()" checked = true/> 카페
+		<input type="checkbox" name="checkbox2" value="Y" onclick="library()" checked = true/> 도서관
+		<input type="checkbox" name="checkbox3" value="Y" onclick="study()" checked = true /> 스터디카페 !!
+		<button onclick="showall()">마커 감추기</button>
+		<button onclick="hideall()">마커 보이기</button>
+	
+</p> 
+<em>클릭한 위치에 마커가 표시됩니다!</em>
+    
+
+<script>
+var mapContainer = document.getElementById('map'), // 지도를 표시할 div  
+    mapOption = { 
+        center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
+        level: 3 // 지도의 확대 레벨
+    };
+
+var map = new kakao.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+
+// 지도를 클릭했을때 클릭한 위치에 마커를 추가하도록 지도에 클릭이벤트를 등록합니다
+
+var addr = "{{addr}}".replace(/&#39;/g, "\"").replace(/&gt;/g, ">");
+var addrc = "{{addrc}}".replace(/&#39;/g, "\"").replace(/&gt;/g, ">");
+var addrl = "{{addrl}}".replace(/&#39;/g, "\"").replace(/&gt;/g, ">");
+var addrsc = "{{addrsc}}".replace(/&#39;/g, "\"").replace(/&gt;/g, ">");
+
+var objData = JSON.parse(addr)
+var objDatac = JSON.parse(addrc)
+var objDatal = JSON.parse(addrl)
+var objDatasc= JSON.parse(addrsc)
+
+
+var markers = [];
+var markers_library = [];
+var markers_study = [];
+
+placesSearchCB(objData)
+placesSearchCBR(objDatac)
+placesSearchCBR(objDatal)
+placesSearchCBR(objDatasc)
+
+var infowindow = new kakao.maps.InfoWindow({zIndex:1});
+
+
+
+ //위치를 잡아줌
+ function placesSearchCB (data, status, pagination) {
+	var bounds = new kakao.maps.LatLngBounds();
+	
+	for (var i=0; i<data.length; i++) {   
+		bounds.extend(new kakao.maps.LatLng(data[i].y, data[i].x));
+	}       
+	map.setBounds(bounds);
+}
+
+
+function placesSearchCBR (data, status, pagination) {
+	console.log(data[0])
+	for (var i=0; i<data.length; i++) {
+		//data[i].y*=1;
+		addMarker(new kakao.maps.LatLng(data[i].y*=1, data[i].x*=1),data[i].category_name,data[i]);
+	}       
+}
+
+// 지도에 표시된 마커 객체를 가지고 있을 배열입니다
+
+// 마커 하나를 지도위에 표시합니다 
+ 
+//addMarker(new kakao.maps.LatLng(33.450701, 126.570667));
+
+// 마커를 생성하고 지도위에 표시하는 함수입니다
+function addMarker(position,type,place) {
+	//console.log(type)
+    // 마커를 생성합니다
+    var marker = new kakao.maps.Marker({
+        position: position
+		});
+		
+		kakao.maps.event.addListener(marker, 'click', function() {
+		// 마커를 클릭하면 장소명이 인포윈도우에 표출됩니다
+			infowindow.setContent('<div style="padding:5px;font-size:12px;">' + place.place_name + '</div>');
+			infowindow.open(map, marker);
+		});
+
+    // 마커가 지도 위에 표시되도록 설정합니다
+    marker.setMap(map);
+    
+		// 생성된 마커를 배열에 추가합니다
+		if(type.includes("카페"))
+			markers.push(marker);
+		if(type.includes("도서관"))
+			markers_library.push(marker);
+		if(type.includes("스터디카페"))
+			markers_study.push(marker);
+}
+
+// 배열에 추가된 마커들을 지도에 표시하거나 삭제하는 함수입니다
+function setMarkers(map,markers,objData) {
+    for (var i = 0; i < markers.length; i++) {
+				markers[i].setMap(map);
+				
+    }            
+}
+
+// "마커 보이기" 버튼을 클릭하면 호출되어 배열에 추가된 마커를 지도에 표시하는 함수입니다
+
+function cafe(){
+	var tmp = $('[name=checkbox1]').is(':checked'); // 변수에 넣기
+		if(tmp){
+			showMarkers()
+		}
+		else{
+			var tmp2 = $('[name=checkbox3]').is(':checked');
+			if(tmp2){
+				hideMarkers()
+				showMarkers_study()
+			}
+			else{
+				hideMarkers()
+			}
+		}
+}
+function library(){
+	var tmp = $('[name=checkbox2]').is(':checked'); // 변수에 넣기
+		if(tmp){
+			showMarkers_library()
+		}
+		else{
+			hideMarkers_library()
+		}
+}
+function study(){
+	var tmp = $('[name=checkbox3]').is(':checked'); // 변수에 넣기
+		if(tmp){
+			showMarkers_study()
+		}
+		else{
+			var tmp2 = $('[name=checkbox1]').is(':checked');
+			if(!tmp2){
+				hideMarkers_study()
+		}}
+}
+function showMarkers() {
+		setMarkers(map,markers,objDatac)    
+}
+function hideMarkers() {
+		setMarkers(null,markers);    
+}
+function showMarkers_library() {
+    setMarkers(map,markers_library,objDatal)    
+}
+function hideMarkers_library() {
+    setMarkers(null,markers_library);    
+}
+function showMarkers_study() {
+    setMarkers(map,markers_study,objDatasc)    
+}
+function hideMarkers_study() {
+    setMarkers(null,markers_study);    
+}
+function showall(){
+	showMarkers()
+	showMarkers_library()
+	showMarkers_study()
+	
+
+}
+function hideall(){
+	hideMarkers()
+	hideMarkers_library()
+	hideMarkers_study()
+	
+}
+
+// "마커 감추기" 버튼을 클릭하면 호출되어 배열에 추가된 마커를 지도에서 삭제하는 함수입니다
+
+
+
+</SCRIPT>
+{% endblock %}
