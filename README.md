@@ -1,3 +1,8 @@
+python manage.py makemigrations
+python manage.py migrate
+python manage.py runserver
+
+
 # 2020.01.13) 회의록1
     6주 동안의 주차 계획을 간략하게 짜기
     업무 분담 세분화
