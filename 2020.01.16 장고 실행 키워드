@@ -1,3 +1,5 @@
+python manage.py makemigrations
+python manage.py migrate
 python manage.py runserver
 
 REST API 키 Tooltip dcec71e023f9c1ef32498ea45540e114
